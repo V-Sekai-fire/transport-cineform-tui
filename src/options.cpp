@@ -101,6 +101,18 @@ Options parse_options(int argc, char **argv) {
 			if (const char *v = value(i)) {
 				o.job.threads = uint32_t(std::atoi(v));
 			}
+		} else if (std::strcmp(a, "-ar") == 0) {
+			if (const char *v = value(i)) {
+				o.job.mix_rate = uint32_t(std::atoi(v));
+			}
+		} else if (std::strcmp(a, "-ac") == 0) {
+			if (const char *v = value(i)) {
+				o.job.channels = uint32_t(std::atoi(v));
+			}
+		} else if (std::strcmp(a, "-abits") == 0) {
+			if (const char *v = value(i)) {
+				o.job.audio_bits = uint32_t(std::atoi(v));
+			}
 		} else if (std::strcmp(a, "-alpha") == 0) {
 			o.job.keep_alpha = true;
 		} else if (std::strcmp(a, "-nostats") == 0) {
@@ -150,6 +162,29 @@ Options parse_options(int argc, char **argv) {
 	if ((o.job.width & 1u) || (o.job.height & 1u)) {
 		o.parse_error = "CineForm needs even dimensions, got " + std::to_string(o.job.width) +
 				"x" + std::to_string(o.job.height);
+		return o;
+	}
+
+	// Audio is off unless -ar names a rate, so the other two settings are meaningless on
+	// their own. Accepting them silently would let `-ac 6` look like it had done something
+	// to a file with no audio track in it at all.
+	if (o.job.mix_rate == 0) {
+		return o;
+	}
+	if (o.job.audio_bits != 16 && o.job.audio_bits != 32) {
+		o.parse_error = "-abits must be 16 or 32, got " + std::to_string(o.job.audio_bits);
+		return o;
+	}
+	if (o.job.channels == 0 || o.job.channels > 8) {
+		o.parse_error = "-ac must be 1 to 8, got " + std::to_string(o.job.channels);
+		return o;
+	}
+	// Godot computes one frame's audio as mix_rate / fps with integer division, and this
+	// interleaved layout is built on that figure. A rate below the frame rate gives zero
+	// samples per frame, which is a silent track rather than an error unless it is caught.
+	if (o.job.mix_rate < o.job.fps) {
+		o.parse_error = "-ar " + std::to_string(o.job.mix_rate) + " is below the frame rate " +
+				std::to_string(o.job.fps) + ", which is zero samples per frame";
 	}
 	return o;
 }

@@ -73,6 +73,20 @@ int main() {
 		check(o.job.source == cineform::SOURCE_TEST_PATTERN, "source is the pattern");
 	}
 
+	std::printf("\nAccepted: audio\n");
+	{
+		const cineform::Options o = parse({"-s", "64x64", "-r", "60", "-ar", "48000",
+				"-ac", "2", "-abits", "32", "o.mkv"});
+		check(o.parse_error.empty(), "parses without error");
+		check(o.job.mix_rate == 48000, "mix rate");
+		check(o.job.channels == 2, "channels");
+		check(o.job.audio_bits == 32, "sample depth");
+	}
+	{
+		const cineform::Options o = parse({"-s", "64x64", "o.mkv"});
+		check(o.job.mix_rate == 0, "audio is off unless -ar names a rate");
+	}
+
 	std::printf("\nNegative controls: command lines that MUST be refused\n");
 
 	// A size that half-parses is the dangerous one. sscanf would take "1920x1080garbage" and
@@ -110,6 +124,19 @@ int main() {
 		const cineform::Options o = parse({"-nosuchflag", "-help"});
 		check(o.show_help, "-help is honoured even after a bad flag");
 	}
+
+	// Audio settings that would produce a file rather than an error.
+	check(!parse({"-s", "64x64", "-ar", "48000", "-abits", "12", "o.mkv"}).parse_error.empty(),
+			"a PCM depth the muxer does not write is refused");
+	check(!parse({"-s", "64x64", "-ar", "48000", "-ac", "0", "o.mkv"}).parse_error.empty(),
+			"zero channels is refused");
+	check(!parse({"-s", "64x64", "-ar", "48000", "-ac", "9", "o.mkv"}).parse_error.empty(),
+			"more than eight channels is refused");
+
+	// mix_rate / fps is integer division, following Godot. A rate under the frame rate is
+	// zero samples per frame, which is a silent track that looks like a successful encode.
+	check(!parse({"-s", "64x64", "-r", "60", "-ar", "30", "o.mkv"}).parse_error.empty(),
+			"a mix rate below the frame rate is refused, not rounded to silence");
 
 	std::printf("\n%d checks, %d failures\n", checks, failures);
 	return failures == 0 ? 0 : 1;

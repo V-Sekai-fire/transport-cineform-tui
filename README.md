@@ -57,8 +57,21 @@ cineform-tui [options] OUTPUT.mkv
   -frames N      how many frames the source holds. 0 means read until it ends.
   -threads N     encoder pool threads. 0 lets the pool choose.
   -alpha         encode RGBA_4444 instead of RGB_444.
+  -ar RATE       audio mix rate. Omit for a file with no audio track.
+  -ac N          audio channels, 1 to 8. Default 2.
+  -abits N       PCM sample depth, 16 or 32. Default 16.
   -nostats       plain lines instead of a full-screen display.
 ```
+
+**With `-ar`, the input is Godot's own interleaved layout**: each frame's pixels are
+followed by that frame's audio, `RATE/FPS` int32 samples per channel, exactly as
+`MovieWriter::write_frame` receives them. One stream, so the two cannot disagree about
+length.
+
+`-abits` is the depth written into the file, **not** the width on the wire, which is always
+int32 because that is what Godot hands over. A mix rate below the frame rate is refused
+rather than rounded to zero samples per frame, which would be a silent track that looked
+like a successful encode.
 
 The encoder is a separate process. Start it through `service-cineform`, which also settles
 the runtime directory and the library path both ends need.
@@ -105,7 +118,7 @@ of it — `src/job.cpp` is the one shared source file, compiled twice from one c
 Built on Windows 11, clang 22.1.8, against FTXUI at `182ef70cd4dc` and contract-bus at
 `f9f1ddcd9341`. Ran against a live `interactor-cineform` over iceoryx2 v0.9.3.
 
-`proof/options_test.cpp` is 30 checks, twelve of them negative controls. Two real defects
+`proof/options_test.cpp` is 39 checks, sixteen of them negative controls. Two real defects
 came out of writing them, and both would have produced a successful run rather than an
 error:
 
