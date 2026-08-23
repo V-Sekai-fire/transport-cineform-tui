@@ -1,0 +1,26 @@
+# The option parsing gate. Twelve of its thirty checks are command lines that MUST be
+# refused; two real defects came out of writing them, and both would have produced a
+# successful encode rather than an error.
+name: proof
+on: [push, pull_request]
+
+jobs:
+  build-and-prove:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the pinned dependencies
+        run: |
+          set -eux
+          git clone --filter=blob:none --no-checkout https://github.com/v-sekai-fabric/contract-bus thirdparty/harness
+          git -C thirdparty/harness checkout f9f1ddcd93412a51ba7f161e8c4f3eeeb1ebc3aa
+          git clone --depth 1 --branch v1.6.1 https://github.com/laurencelundblade/QCBOR thirdparty/harness/libs/qcbor
+          git clone --depth 1 https://github.com/weftspun/interactor-cineform thirdparty/interactor-cineform
+          git clone --filter=blob:none --no-checkout https://github.com/weftspun/FTXUI thirdparty/ftxui
+          git -C thirdparty/ftxui checkout 182ef70cd4dc1109d06e66361a9da86445928578
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Prove the option parsing
+        run: ./build/cineform-tui-proof-options

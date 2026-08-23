@@ -1,0 +1,6 @@
+build/
+thirdparty/harness/
+thirdparty/interactor-cineform/
+thirdparty/ftxui/
+.repo/
+__pycache__/
