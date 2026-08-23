@@ -13,7 +13,7 @@ jobs:
         run: |
           set -eux
           git clone --filter=blob:none --no-checkout https://github.com/v-sekai-fabric/contract-bus thirdparty/harness
-          git -C thirdparty/harness checkout f9f1ddcd93412a51ba7f161e8c4f3eeeb1ebc3aa
+          git -C thirdparty/harness checkout 4340ea34394e20b832d9efad66117cae2da2ce7a
           git clone --depth 1 --branch v1.6.1 https://github.com/laurencelundblade/QCBOR thirdparty/harness/libs/qcbor
           git clone --depth 1 https://github.com/weftspun/interactor-cineform thirdparty/interactor-cineform
           git clone --filter=blob:none --no-checkout https://github.com/weftspun/FTXUI thirdparty/ftxui
