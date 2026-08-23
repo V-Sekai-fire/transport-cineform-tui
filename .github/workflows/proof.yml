@@ -6,14 +6,21 @@ on: [push, pull_request]
 
 jobs:
   build-and-prove:
-    runs-on: ubuntu-latest
+    # This half links no codec, so it is not held to x86_64 the way the encoder is and
+    # macos-latest (arm64) is fair game. The pairing is deliberate: if the encoder ever
+    # grows a NEON path, this job already proves the transport side runs there.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the pinned dependencies
         run: |
           set -eux
           git clone --filter=blob:none --no-checkout https://github.com/v-sekai-fabric/contract-bus thirdparty/harness
-          git -C thirdparty/harness checkout 4340ea34394e20b832d9efad66117cae2da2ce7a
+          git -C thirdparty/harness checkout b3acc3be2e00cc2fa25d9d325aa7935c187ea0a2
           git clone --depth 1 --branch v1.6.1 https://github.com/laurencelundblade/QCBOR thirdparty/harness/libs/qcbor
           git clone --depth 1 https://github.com/weftspun/interactor-cineform thirdparty/interactor-cineform
           git clone --filter=blob:none --no-checkout https://github.com/weftspun/FTXUI thirdparty/ftxui
