@@ -113,6 +113,17 @@ so that case prints a frame count and says the source is unbounded.
 of those would drift. Nothing here links the encoder and this build never compiles a line
 of it — `src/job.cpp` is the one shared source file, compiled twice from one copy.
 
+**Inside the weftspun-keypoint workspace, the dependencies come from the goal manifest
+instead.** They are checked out under `7-service/service-cineform/thirdparty/`, and this
+build takes them through the cache paths above rather than syncing a second copy. Two
+checkouts of contract-bus in one tree is the drift `wire.hpp` exists to prevent.
+
+**Do not run `repo init` in this directory to get them.** It walks up to the workspace
+client and re-points the goal manifest at this project, reporting only that it initialised
+somewhere else. `7-service/service-cineform/README.md` gives the command line that builds
+this against the composed checkout.
+
+
 ## What was measured
 
 Built on Windows 11, clang 22.1.8, against FTXUI at `182ef70cd4dc` and contract-bus at
