@@ -22,8 +22,8 @@ jobs:
           git clone --filter=blob:none --no-checkout https://github.com/V-Sekai-fire/contract-bus thirdparty/harness
           git -C thirdparty/harness checkout b3acc3be2e00cc2fa25d9d325aa7935c187ea0a2
           git clone --depth 1 --branch v1.6.1 https://github.com/laurencelundblade/QCBOR thirdparty/harness/libs/qcbor
-          git clone --depth 1 https://github.com/weftspun/interactor-cineform thirdparty/interactor-cineform
-          git clone --filter=blob:none --no-checkout https://github.com/weftspun/FTXUI thirdparty/ftxui
+          git clone --depth 1 https://github.com/V-Sekai-fire/interactor-cineform thirdparty/interactor-cineform
+          git clone --filter=blob:none --no-checkout https://github.com/ArthurSonzogni/FTXUI thirdparty/ftxui
           git -C thirdparty/ftxui checkout 182ef70cd4dc1109d06e66361a9da86445928578
       - name: Configure
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
