@@ -4,6 +4,10 @@
 name: proof
 on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build-and-prove:
     # This half links no codec, so it is not held to x86_64 the way the encoder is and
