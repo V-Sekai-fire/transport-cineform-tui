@@ -4,7 +4,7 @@ A terminal front end that sends one encode job to interactor-cineform over the c
 
 ## What it is for
 
-An encode runs for minutes, so this transport gives it a live status line in the vocabulary of a common video encoder's log. It decides nothing itself: the interactor's reply is the verdict, its elapsed time is the one printed, and its result sets the exit code. RFD 1137 owns the topic.
+An encode runs for minutes, so this transport gives it a live status line in the vocabulary of a common video encoder's log. It decides nothing itself: the interactor's reply is the verdict, its elapsed time is the one printed, and its result sets the exit code. RFD66606-1137 owns the topic.
 
 ## Build and run
 
